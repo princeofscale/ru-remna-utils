@@ -1,90 +1,135 @@
 # yacloud-ip-roller
 
-Rolls the public IP of a Yandex Cloud VM until it lands in the [russia-mobile-internet-whitelist](https://github.com/hxehex/russia-mobile-internet-whitelist) — useful for VPN/proxy servers that must be reachable through Russian mobile operators.
+Крутит публичный IP виртуальной машины Яндекс Облака до попадания в [russia-mobile-internet-whitelist](https://github.com/hxehex/russia-mobile-internet-whitelist) — полезно для VPN/прокси-серверов, которые должны быть доступны через российских мобильных операторов.
 
-## How it works
+## Как это работает
 
-1. Downloads the allowed CIDR list from `hxehex/russia-mobile-internet-whitelist`
-2. Checks the current public IP of your VM
-3. If the IP is not in the target range — unbinds it and requests a new ephemeral address
-4. Repeats until a matching IP is found (or the attempt limit is reached)
+1. Скачивает список разрешённых CIDR из `hxehex/russia-mobile-internet-whitelist`
+2. Проверяет текущий публичный IP вашей VM
+3. Если IP не в нужном диапазоне — отвязывает его и запрашивает новый эфемерный адрес
+4. Повторяет до нахождения подходящего IP (или исчерпания лимита попыток)
 
-Use `--prefix 51.250` to hunt specifically for the `51.250.x.x` range, which has the broadest operator support in Russia.
+Используйте `--prefix 51.250`, чтобы целенаправленно искать диапазон `51.250.x.x` — он имеет наиболее широкую поддержку у операторов в России.
 
-## Requirements
+## Требования
 
-- macOS / Linux
+- Windows / macOS / Linux
 - Python 3.8+
-- [Yandex Cloud CLI (`yc`)](https://yandex.cloud/en/docs/cli/quickstart)
-- A Yandex Cloud VM with an ephemeral (dynamic) public IP
+- [Yandex Cloud CLI (`yc`)](https://yandex.cloud/ru/docs/cli/quickstart)
+- VM в Яндекс Облаке с эфемерным (динамическим) публичным IP
 
-## Install
+## Установка
 
 ```bash
 git clone https://github.com/princeofscale/yacloud-ip-roller.git
 cd yacloud-ip-roller
 ```
 
-No extra dependencies — uses only the Python standard library.
+Дополнительных зависимостей нет — используется только стандартная библиотека Python.
 
-## Usage
+### Установка yc CLI
+
+**macOS / Linux:**
+```bash
+curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+```
+
+**Windows:**
+Скачайте `yc.exe` и положите в `%USERPROFILE%\yandex-cloud\bin\` или в любую папку из `PATH`:
+```
+https://storage.yandexcloud.net/yandexcloud-yc/release/latest/windows/amd64/yc.exe
+```
+
+## Использование
 
 ```bash
 python3 roll_ip.py --instance-id <VM_ID>
 ```
 
-### Hunt specifically for 51.250.x.x
+### Поиск конкретного диапазона 51.250.x.x
 
 ```bash
 python3 roll_ip.py --instance-id <VM_ID> --prefix 51.250
 ```
 
-### All options
-
-```
---instance-id   VM ID in Yandex Cloud (required)
---prefix        Accept only IPs starting with this prefix (e.g. 51.250)
---mask          Minimum subnet prefix length to accept (default: 16)
-                16 = accept /16 and more specific
-                24 = accept only /24 and more specific
---iface         Network interface index (default: 0)
---attempts      Max number of attempts (default: 500)
---delay         Pause between remove-nat and add-nat in seconds (default: 2)
-```
-
-### Make the IP static after finding it
+### Параллельный прокрут нескольких VM
 
 ```bash
-# Find the address ID
+python3 roll_ip.py --instance-id <VM_ID_1> <VM_ID_2> <VM_ID_3> --prefix 51.250
+```
+
+Каждый инстанс крутится в отдельном потоке одновременно. Вывод помечается коротким префиксом ID.
+
+### Все параметры
+
+```
+--instance-id   ID виртуальной машины в Яндекс Облаке (обязательный; можно указать несколько)
+--prefix        Принимать только IP с этим началом (напр. 51.250)
+--mask          Минимальная длина префикса подсети (по умолчанию: 16)
+                16 = принимать /16 и точнее
+                24 = принимать только /24 и точнее
+--iface         Индекс сетевого интерфейса (по умолчанию: 0)
+--attempts      Максимальное число попыток на каждый инстанс (по умолчанию: 500)
+--delay         Пауза между remove-nat и add-nat в секундах (по умолчанию: 2)
+```
+
+### Зафиксировать IP после нахождения
+
+```bash
+# Найти ID адреса
 yc vpc address list
 
-# Reserve it (make static)
+# Зарезервировать (сделать статическим)
 yc vpc address update --reserved=true <address_id>
 ```
 
-## Example output
+## Пример вывода
 
+Одиночный инстанс:
 ```
+yc CLI: /home/user/yandex-cloud/bin/yc
 Загрузка вайтлиста (маска /16)...
   Подсетей /16+: 2847  (пропущено /15 и шире: 412)
 Итого: 2847 записей
 
 Фильтр: только IP начинающиеся с '51.250'
 
-[1/500] 158.160.121.55  —  не тот диапазон
-  меняем IP...
-[2/500] 93.77.183.10  —  не тот диапазон
-  меняем IP...
-[3/500] 51.250.117.6  —  не тот диапазон
-  меняем IP...
-...
-✓ Готово! IP: 51.250.4.23  подсеть: 51.250.4.0/24
+[fv4d1rs] [1/500] 158.160.121.55  —  не тот диапазон
+[fv4d1rs] [1/500]   меняем IP...
+[fv4d1rs] [2/500] 51.250.117.6  —  не тот диапазон
+[fv4d1rs] [2/500]   меняем IP...
+
+[fv4d1rs] ✓ Готово! IP: 51.250.4.23  подсеть: 51.250.4.0/24
+
+==================================================
+  ✓ fv4d1rs  →  51.250.4.23
+==================================================
 ```
 
-## Zones that yield 51.250.x.x
+Параллельный прокрут двух инстансов:
+```
+Запускаем параллельный прокрут для 2 инстансов...
 
-From testing, `ru-central1-d` tends to produce `51.250.x.x` addresses. Use that zone when creating your VM for best results.
+[fv4d1rs] [1/500] 158.160.12.5  —  не тот диапазон
+[fv4k9xx] [1/500] 94.130.22.1   —  не в списке
+[fv4d1rs] [1/500]   меняем IP...
+[fv4k9xx] [1/500]   меняем IP...
+[fv4d1rs] [2/500] 51.250.4.23   —  не тот диапазон
 
-## License
+[fv4k9xx] ✓ Готово! IP: 51.250.8.11  подсеть: 51.250.0.0/16
+
+[fv4d1rs] ✓ Готово! IP: 51.250.4.23  подсеть: 51.250.4.0/24
+
+==================================================
+  ✓ fv4d1rs  →  51.250.4.23
+  ✓ fv4k9xx  →  51.250.8.11
+==================================================
+```
+
+## Зоны, дающие 51.250.x.x
+
+По опыту тестирования, зона `ru-central1-d` чаще всего выдаёт адреса `51.250.x.x`. Используйте эту зону при создании VM для лучших результатов.
+
+## Лицензия
 
 MIT
