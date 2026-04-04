@@ -37,7 +37,7 @@ curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
 **Windows:**
 Скачайте `yc.exe` и положите в `%USERPROFILE%\yandex-cloud\bin\` или в любую папку из `PATH`:
 ```
-https://storage.yandexcloud.net/yandexcloud-yc/release/latest/windows/amd64/yc.exe
+https://yandex.cloud/ru/docs/cli/quickstart
 ```
 
 ## Использование
@@ -129,6 +129,9 @@ yc CLI: /home/user/yandex-cloud/bin/yc
 ## Зоны, дающие 51.250.x.x
 
 По опыту тестирования, зона `ru-central1-d` чаще всего выдаёт адреса `51.250.x.x`. Используйте эту зону при создании VM для лучших результатов.
+
+## Поддержка
+https://rknfuck.space
 
 ## Лицензия
 
