@@ -18,7 +18,7 @@
 
 ## Структура репозитория
 
-```
+```text
 ru-remna-utils/
 ├── yacloud-ip-roller/     # Смена публичного IP на Яндекс Облаке
 │   └── roll_ip.py
@@ -87,10 +87,10 @@ name = "Fixed"
 
 Каждое изменение = один файл в `changelog.d/`. Название файла:
 
-```
+```text
 123.added.md
 456.fixed.md
-+orphan.bugfix.md   # если нет PR/issue
++orphan.bugfix.md
 ```
 
 Содержимое — одна строка на русском:
