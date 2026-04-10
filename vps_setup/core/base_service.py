@@ -4,26 +4,30 @@ import subprocess
 from abc import ABC, abstractmethod
 from pathlib import Path
 
+from .executor import Executor
+
 
 class BaseService(ABC):
     name: str
     description: str
 
-    def __init__(self) -> None:
+    def __init__(self, executor: Executor) -> None:
+        self.executor = executor
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def run_command(
-        self, cmd: list[str], check: bool = True, capture: bool = True
+        self,
+        cmd: list[str],
+        check: bool = True,
+        capture: bool = True,
+        description: str = "",
     ) -> subprocess.CompletedProcess:
         if not self.is_root():
             raise PermissionError("Требуются права root (sudo)")
+        return self.executor.run(cmd, description=description, check=check, capture=capture)
 
-        kwargs: dict = {"check": check}
-        if capture:
-            kwargs["capture_output"] = True
-            kwargs["text"] = True
-
-        return subprocess.run(cmd, **kwargs)
+    def _read(self, cmd: list[str], check: bool = False) -> subprocess.CompletedProcess:
+        return subprocess.run(cmd, capture_output=True, text=True, check=check)
 
     @staticmethod
     def is_root() -> bool:
@@ -43,6 +47,9 @@ class BaseService(ABC):
 
     @abstractmethod
     def apply(self) -> str: ...
+
+    def is_configured(self) -> bool:
+        return False
 
     def is_installed(self) -> bool:
         try:

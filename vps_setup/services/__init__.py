@@ -1,17 +1,21 @@
-"""Сервисы для управления Linux-сервером."""
-
-from .bbr import BBRService
-from .docker import DockerService
-from .fail2ban import Fail2BanService
-from .traffic_guard import TrafficGuardService
-from .ufw import UFWService
-from .uv_manager import UVService
+from .monitoring import TrafficGuardService
+from .security import Fail2BanService, UFWService
+from .system import (
+    SSHHardeningService,
+    SwapService,
+    SysctlOptimizerService,
+    UnattendedUpgradesService,
+)
+from .tools import DockerService, UVService
 
 __all__ = [
-    "BBRService",
     "DockerService",
     "Fail2BanService",
+    "SSHHardeningService",
+    "SwapService",
+    "SysctlOptimizerService",
     "TrafficGuardService",
     "UFWService",
     "UVService",
+    "UnattendedUpgradesService",
 ]

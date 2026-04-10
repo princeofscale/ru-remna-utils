@@ -1,6 +1,6 @@
-# RU Remna Utils
+# ru-remna-utils
 
-> Коллекция утилит для панели Remnawave, помогающих администраторам VPN-сервисов ускорить процесс работы.
+> Утилиты для автоматизации настройки VPN-серверов — Remnawave, WireGuard, Xray и других.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -8,117 +8,118 @@
 
 ---
 
-## Доступные утилиты
+## Утилиты
 
 ### [yacloud-ip-roller](./yacloud-ip-roller/)
 
-**Автоматическая ротация IP-адресов виртуальных машин в Yandex Cloud**
+**Автоматическая смена публичного IP на Yandex Cloud**
 
-Утилита для ротации публичных IP-адресов до попадания в вайтлист russia-mobile-internet-whitelist с поддержкой параллельной обработки нескольких инстансов.
+Крутит IP-адреса виртуальных машин до попадания в вайтлист `russia-mobile-internet-whitelist`. Поддерживает параллельную обработку нескольких инстансов и несколько префиксов IP.
 
-**Возможности:**
+Возможности:
+
+- Параллельная обработка нескольких VM
+- Фильтрация по нескольким IP-префиксам (`--prefix 51.250 158.160`)
 - Кросс-платформенная поддержка (Windows, macOS, Linux)
-- Параллельная обработка нескольких VM одновременно
-- Фильтрация по префиксу IP-адреса
-- Настраиваемая маска подсети (/16-/24)
-- Полная документация на русском языке
+- Ошибки API не тратят счётчик попыток
 
-**Быстрый старт:**
 ```bash
-cd yacloud-ip-roller
-python3 roll_ip.py --instance-id <VM_ID>
+python3 yacloud-ip-roller/roll_ip.py --instance-id <VM_ID>
+
+# несколько инстансов с фильтром по префиксу
+python3 yacloud-ip-roller/roll_ip.py \
+  --instance-id <ID1> <ID2> \
+  --prefix 51.250 158.160 \
+  --attempts 2000
 ```
 
-Подробная документация: [yacloud-ip-roller/README.md](./yacloud-ip-roller/README.md)
+---
 
 ### [vps-setup](./vps_setup/)
 
-**Настройка и оптимизация Linux-серверов под VPN**
+**Настройка Linux-сервера под VPN одной командой**
 
-Автоматизирует установку и настройку критически важных сервисов для VPN-серверов на базе Debian/Ubuntu.
+CLI-утилита для автоматизации настройки Debian/Ubuntu серверов. Устанавливает и конфигурирует всё необходимое для работы VPN-панелей.
 
-**Возможности:**
-- UFW — настройка файрвола с правилами для VPN-портов
-- BBR — включение TCP BBR для оптимизации производительности сети
-- Docker — установка Docker и Docker Compose
-- Fail2Ban — защита от брутфорс-атак
-- TrafficGuard — мониторинг сетевого трафика
-- uv — установка менеджера пакетов Python
+### Сервисы
 
-**Быстрый старт:**
+| Сервис | Что делает |
+| -------- | ---------- |
+| `swap` | Создаёт swap-файл (2 ГБ по умолчанию) |
+| `sysctl` | BBR + оптимизация TCP/сети |
+| `ssh` | Hardening SSH: отключение паролей, ограничение попыток |
+| `ufw` | Файрвол с правилами для VPN-портов |
+| `fail2ban` | Защита от брутфорс-атак |
+| `docker` | Docker + Docker Compose |
+| `autoupdate` | Автоматические security-обновления |
+| `traffic` | Инструменты мониторинга (vnstat, iftop, nethogs) |
+| `uv` | Быстрый менеджер пакетов Python |
 
 ```bash
-# Установка
 pip install -e .
 
-# Настроить всё автоматически
+# настроить всё
 sudo vps-setup setup-all
 
-# Проверить статус
+# посмотреть план без выполнения
+sudo vps-setup setup-all --dry-run
+
+# статус
 sudo vps-setup status --all
+
+# конкретный сервис
+sudo vps-setup apply ufw
 ```
 
-Подробная документация: [vps-setup/README.md](./vps_setup/README.md)
+**Конфигурация** через `~/.config/vps-setup/config.toml` (опционально):
+
+```toml
+[general]
+ssh_port = 2222
+swap_size_gb = 4
+timezone = "Europe/Moscow"
+vpn_ports = [443, 51820, 80]
+```
 
 ---
 
 ## Требования
 
-- **Python:** 3.10 или выше
-- **Платформы:** Windows, macOS, Linux
+- Python 3.10+
+- Debian 11+ / Ubuntu 20.04+ (для vps-setup)
+- Yandex Cloud CLI установлен (для yacloud-ip-roller)
 
 ---
 
-## Вклад в проект
+## Контрибуция
 
-Мы приветствуем вклад в проект! Если вы хотите добавить новую утилиту или улучшить существующую:
+1. Создайте issue с описанием идеи
+2. Форкните репозиторий
+3. Создайте ветку: `git checkout -b feature/название`
+4. Внесите изменения, проверьте через `ruff check .`
+5. Откройте PR
 
-### Процесс контрибуции
+**Инструменты разработки:**
 
-1. **Обсудите идею** — создайте issue с описанием вашей идеи
-2. **Форкните репозиторий** — сделайте fork и клонируйте его локально
-3. **Создайте ветку** — `git checkout -b feature/your-feature-name`
-4. **Разработайте** — внесите изменения, следуя стандартам кода
-5. **Протестируйте** — убедитесь, что код работает корректно
-6. **Отправьте PR** — создайте pull request с описанием изменений
-
-### Стандарты качества кода
-
-Проект использует современный стек инструментов для Python:
-
-- **[Ruff](https://github.com/astral-sh/ruff)** — быстрый линтер и форматтер
-- **[pre-commit](https://pre-commit.com/)** — автоматическая проверка перед коммитом
-- **[mypy](https://mypy-lang.org/)** — проверка типов
-- **GitHub Actions** — автоматическая проверка в CI/CD
-
-**Установка инструментов разработки:**
 ```bash
-pip install ruff pre-commit mypy
+pip install ruff pre-commit
 pre-commit install
-```
-
-**Проверка кода перед коммитом:**
-```bash
 ruff check .
 ruff format .
-mypy yacloud-ip-roller/roll_ip.py --ignore-missing-imports
 ```
 
-### Требования к новым утилитам
+---
 
-- Python 3.10+ обязательно
-- Кросс-платформенность (Windows/macOS/Linux) где возможно
-- Документация на русском языке
-- Соответствие стандартам кода (Ruff, mypy)
-- Тесты для основных функций
+## Участники
+
+- [@princeofscale](https://github.com/princeofscale) — автор
+- [@ixycu](https://github.com/ixycu) — поддержка нескольких `--prefix`
 
 ---
 
 ## Поддержка
 
-Если у вас возникли вопросы или проблемы:
-
-- **Сайт поддержки:** [https://rknfuck.space/](https://rknfuck.space/)
+- **Сайт:** [rknfuck.space](https://rknfuck.space/)
 - **Telegram:** [@tieruser](https://t.me/tieruser)
 - **Issues:** [GitHub Issues](https://github.com/princeofscale/ru-remna-utils/issues)
 
@@ -126,4 +127,4 @@ mypy yacloud-ip-roller/roll_ip.py --ignore-missing-imports
 
 ## Лицензия
 
-Этот проект распространяется под лицензией MIT. Подробности в файле [LICENSE](./LICENSE).
+MIT — подробности в [LICENSE](./LICENSE).
