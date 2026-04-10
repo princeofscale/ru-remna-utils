@@ -1,16 +1,5 @@
 #!/usr/bin/env python3
-"""
-Крутит публичный IP на VPS в Яндекс Облаке до попадания в вайтлист
-russia-mobile-internet-whitelist.
 
-Возможности:
-- Кросс-платформенный поиск yc CLI (Windows / macOS / Linux)
-- --instance-id принимает несколько ID: параллельный прокрут через threading
-- Тихий режим: yc-вывод подавлен, прогресс чистый
-- --prefix: фильтрует только нужный диапазон (напр. 51.250)
-- JSON-формат для парсинга VM
-- --mask 16 по умолчанию — принимает /16–/24 диапазоны
-"""
 import argparse
 import ipaddress
 import json
@@ -32,23 +21,25 @@ PRINT_LOCK = threading.Lock()
 
 
 def tprint(*args, **kwargs):
-    """Thread-safe print."""
     with PRINT_LOCK:
         print(*args, **kwargs)
 
 
 def find_yc() -> str:
-    """Находит исполняемый файл yc CLI в зависимости от ОС."""
     if platform.system() == "Windows":
         candidates = [
             os.path.join(os.path.expanduser("~"), "yandex-cloud", "bin", "yc.exe"),
             os.path.join(
                 os.environ.get("LOCALAPPDATA", ""),
-                "Yandex.Cloud", "bin", "yc.exe",
+                "Yandex.Cloud",
+                "bin",
+                "yc.exe",
             ),
             os.path.join(
                 os.environ.get("PROGRAMFILES", ""),
-                "Yandex.Cloud", "bin", "yc.exe",
+                "Yandex.Cloud",
+                "bin",
+                "yc.exe",
             ),
             "yc.exe",
             "yc",
@@ -63,7 +54,6 @@ def find_yc() -> str:
     for path in candidates:
         if os.path.isfile(path) and os.access(path, os.X_OK):
             return path
-        # Для коротких имён — ищем в PATH
         if os.sep not in path and "/" not in path:
             found = shutil.which(path)
             if found:
@@ -125,9 +115,14 @@ def get_current_ip(yc: str, instance_id: str):
 def remove_nat(yc: str, instance_id: str, iface_index: int) -> None:
     subprocess.check_call(
         [
-            yc, "compute", "instance", "remove-one-to-one-nat",
-            "--id", instance_id,
-            "--network-interface-index", str(iface_index),
+            yc,
+            "compute",
+            "instance",
+            "remove-one-to-one-nat",
+            "--id",
+            instance_id,
+            "--network-interface-index",
+            str(iface_index),
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -137,9 +132,14 @@ def remove_nat(yc: str, instance_id: str, iface_index: int) -> None:
 def add_nat(yc: str, instance_id: str, iface_index: int) -> None:
     subprocess.check_call(
         [
-            yc, "compute", "instance", "add-one-to-one-nat",
-            "--id", instance_id,
-            "--network-interface-index", str(iface_index),
+            yc,
+            "compute",
+            "instance",
+            "add-one-to-one-nat",
+            "--id",
+            instance_id,
+            "--network-interface-index",
+            str(iface_index),
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -156,13 +156,11 @@ def roll_instance(
     delay: float,
     results: dict,
 ) -> None:
-    """Прокручивает IP одного инстанса. Запускается в отдельном потоке."""
     short_id = instance_id[:7]
     tag = f"[{short_id}]"
+    attempt = 0
 
-    for attempt in range(1, attempts + 1):
-        label = f"{tag} [{attempt}/{attempts}]"
-
+    while attempt < attempts:
         ip = None
         for _ in range(5):
             try:
@@ -171,10 +169,13 @@ def roll_instance(
             except Exception:
                 time.sleep(2)
 
-        if not ip:
-            tprint(f"{label} IP недоступен, пропускаем...", flush=True)
-            time.sleep(3)
+        if ip is None:
+            tprint(f"{tag} [{attempt}/{attempts}] не удаётся получить IP, повтор...", flush=True)
+            time.sleep(5)
             continue
+
+        attempt += 1
+        label = f"{tag} [{attempt}/{attempts}]"
 
         if prefix and not ip.startswith(prefix):
             tprint(f"{label} {ip}  —  не тот диапазон", flush=True)
@@ -186,7 +187,6 @@ def roll_instance(
                 return
             tprint(f"{label} {ip}  —  не в списке", flush=True)
 
-        tprint(f"{label}   меняем IP...", flush=True)
         try:
             remove_nat(yc, instance_id, iface)
         except Exception as e:
@@ -274,15 +274,33 @@ def main():
 
     if len(instance_ids) == 1:
         roll_instance(
-            yc, instance_ids[0], networks, args.prefix,
-            args.iface, args.attempts, args.delay, results,
+            yc,
+            instance_ids[0],
+            networks,
+            args.prefix,
+            args.iface,
+            args.attempts,
+            args.delay,
+            results,
         )
     else:
-        print(f"Запускаем параллельный прокрут для {len(instance_ids)} инстансов...\n", flush=True)
+        print(
+            f"Запускаем параллельный прокрут для {len(instance_ids)} инстансов...\n",
+            flush=True,
+        )
         threads = [
             threading.Thread(
                 target=roll_instance,
-                args=(yc, iid, networks, args.prefix, args.iface, args.attempts, args.delay, results),
+                args=(
+                    yc,
+                    iid,
+                    networks,
+                    args.prefix,
+                    args.iface,
+                    args.attempts,
+                    args.delay,
+                    results,
+                ),
                 daemon=True,
             )
             for iid in instance_ids
