@@ -105,7 +105,7 @@ def setup_all() -> None:
     console.print("\n[bold green]✅ Настройка завершена![/bold green]")
     console.print("\n[yellow]Рекомендации:[/yellow]")
     console.print("  • Перезагрузите сервер для применения всех изменений")
-    console.print("  • Проверьте статус: deb-server-utils status --all")
+    console.print("  • Проверьте статус: vps-setup status --all")
     console.print("  • Настройте VPN-панель (Remnawave/WireGuard/Xray)")
 
 
@@ -121,9 +121,9 @@ def info() -> None:
 
     console.print(table)
     console.print("\n[yellow]Использование:[/yellow]")
-    console.print("  deb-server-utils status --all          # статус всех сервисов")
-    console.print("  deb-server-utils apply ufw             # настроить UFW")
-    console.print("  deb-server-utils setup-all             # настроить всё")
+    console.print("  vps-setup status --all          # статус всех сервисов")
+    console.print("  vps-setup apply ufw             # настроить UFW")
+    console.print("  vps-setup setup-all             # настроить всё")
 
 
 def main() -> None:

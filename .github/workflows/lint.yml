@@ -1,0 +1,32 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v6.2.0
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff mypy
+
+      - name: Run Ruff check
+        run: ruff check .
+
+      - name: Run Ruff format check
+        run: ruff format --check .
+
+      - name: Run mypy
+        run: mypy yacloud-ip-roller/roll_ip.py --ignore-missing-imports

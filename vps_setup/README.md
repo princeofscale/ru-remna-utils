@@ -31,7 +31,7 @@ pip install -e .
 ### Быстрый старт (настроить всё)
 
 ```bash
-sudo deb-server-utils setup-all
+sudo vps-setup setup-all
 ```
 
 Эта команда установит и настроит все сервисы автоматически.
@@ -40,28 +40,28 @@ sudo deb-server-utils setup-all
 
 ```bash
 # Все сервисы
-sudo deb-server-utils status --all
+sudo vps-setup status --all
 
 # Конкретные сервисы
-sudo deb-server-utils status ufw bbr docker
+sudo vps-setup status ufw bbr docker
 ```
 
 ### Установка отдельного сервиса
 
 ```bash
-sudo deb-server-utils install ufw
+sudo vps-setup install ufw
 ```
 
 ### Настройка отдельного сервиса
 
 ```bash
-sudo deb-server-utils apply ufw
+sudo vps-setup apply ufw
 ```
 
 ### Информация о сервисах
 
 ```bash
-deb-server-utils info
+vps-setup info
 ```
 
 ## Описание сервисов
@@ -75,7 +75,7 @@ deb-server-utils info
 - Разрешает все исходящие соединения
 
 ```bash
-sudo deb-server-utils apply ufw
+sudo vps-setup apply ufw
 ```
 
 ### BBR (Bottleneck Bandwidth and RTT)
@@ -86,7 +86,7 @@ sudo deb-server-utils apply ufw
 - Улучшает работу VPN-соединений
 
 ```bash
-sudo deb-server-utils apply bbr
+sudo vps-setup apply bbr
 ```
 
 **Требования:** Linux kernel 4.9+
@@ -99,7 +99,7 @@ sudo deb-server-utils apply bbr
 - Автозапуск при загрузке системы
 
 ```bash
-sudo deb-server-utils apply docker
+sudo vps-setup apply docker
 ```
 
 ### Fail2Ban
@@ -111,7 +111,7 @@ sudo deb-server-utils apply docker
 - Максимум попыток: 5 (настраивается)
 
 ```bash
-sudo deb-server-utils apply fail2ban
+sudo vps-setup apply fail2ban
 ```
 
 ### TrafficGuard
@@ -123,7 +123,7 @@ sudo deb-server-utils apply fail2ban
 - `tcpdump` — анализ пакетов
 
 ```bash
-sudo deb-server-utils apply traffic
+sudo vps-setup apply traffic
 ```
 
 ### uv
@@ -134,12 +134,12 @@ sudo deb-server-utils apply traffic
 - Совместимость с pip
 
 ```bash
-sudo deb-server-utils apply uv
+sudo vps-setup apply uv
 ```
 
 ## Конфигурация
 
-Настройки можно изменить в файле `deb-server-utils/config.py`:
+Настройки можно изменить в файле `vps-setup/config.py`:
 
 ```python
 @dataclass
@@ -157,10 +157,10 @@ class Config:
 
 ```bash
 # 1. Установить и настроить всё
-sudo deb-server-utils setup-all
+sudo vps-setup setup-all
 
 # 2. Проверить статус
-sudo deb-server-utils status --all
+sudo vps-setup status --all
 
 # 3. Перезагрузить сервер
 sudo reboot
@@ -169,8 +169,8 @@ sudo reboot
 ### Настройка только файрвола и BBR
 
 ```bash
-sudo deb-server-utils apply ufw
-sudo deb-server-utils apply bbr
+sudo vps-setup apply ufw
+sudo vps-setup apply bbr
 ```
 
 ### Проверка версии ядра для BBR

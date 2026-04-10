@@ -14,7 +14,7 @@ def check_root() -> None:
 
         if not is_root:
             print("❌ Ошибка: требуются права root (sudo)", file=sys.stderr)
-            print("Запустите: sudo python3 -m deb_server_utils.cli", file=sys.stderr)
+            print("Запустите: sudo python3 -m vps_setup.cli", file=sys.stderr)
             sys.exit(1)
     except Exception as e:
         print(f"❌ Ошибка проверки прав: {e}", file=sys.stderr)

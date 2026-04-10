@@ -99,6 +99,12 @@ def is_in_whitelist(ip_str: str, networks: list):
     return None
 
 
+def matches_any_prefix(ip: str, prefixes: list[str] | None) -> bool:
+    if not prefixes:
+        return True
+    return any(ip.startswith(p) for p in prefixes)
+
+
 def get_current_ip(yc: str, instance_id: str):
     out = subprocess.check_output(
         [yc, "compute", "instance", "get", "--id", instance_id, "--format", "json"],
@@ -150,7 +156,7 @@ def roll_instance(
     yc: str,
     instance_id: str,
     networks: list,
-    prefix: str,
+    prefixes: list[str] | None,
     iface: int,
     attempts: int,
     delay: float,
@@ -177,7 +183,7 @@ def roll_instance(
         attempt += 1
         label = f"{tag} [{attempt}/{attempts}]"
 
-        if prefix and not ip.startswith(prefix):
+        if not matches_any_prefix(ip, prefixes):
             tprint(f"{label} {ip}  —  не тот диапазон", flush=True)
         else:
             match = is_in_whitelist(ip, networks)
@@ -247,9 +253,10 @@ def main():
     parser.add_argument(
         "--prefix",
         type=str,
+        nargs="+",
         default=None,
         metavar="IP_PREFIX",
-        help="Принимать только IP с этим началом (напр. '51.250')",
+        help="Принимать только IP с этим началом (можно несколько, напр. '51.250' '158.160')",
     )
     parser.add_argument(
         "--delay",
@@ -267,7 +274,7 @@ def main():
     print(f"Итого: {len(networks)} записей\n", flush=True)
 
     if args.prefix:
-        print(f"Фильтр: только IP начинающиеся с '{args.prefix}'\n", flush=True)
+        print(f"Фильтр: только IP начинающиеся с: {', '.join(args.prefix)}\n", flush=True)
 
     instance_ids = args.instance_id
     results: dict = {}
