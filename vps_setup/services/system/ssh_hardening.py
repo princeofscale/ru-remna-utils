@@ -33,9 +33,7 @@ class SSHHardeningService(BaseService):
         if result.returncode != 0:
             return "⚠️ sshd не найден или не запущен"
         params = dict(
-            line.split(None, 1)
-            for line in result.stdout.splitlines()
-            if " " in line
+            line.split(None, 1) for line in result.stdout.splitlines() if " " in line
         )
         port = params.get("port", "?")
         auth = params.get("passwordauthentication", "?")
@@ -49,9 +47,7 @@ class SSHHardeningService(BaseService):
         if not _SSHD_CONFIG.exists():
             return False
         content = _SSHD_CONFIG.read_text()
-        return all(
-            f"{k} {v}" in content for k, v in _HARDENING_PARAMS.items()
-        )
+        return all(f"{k} {v}" in content for k, v in _HARDENING_PARAMS.items())
 
     def apply(self) -> str:
         try:

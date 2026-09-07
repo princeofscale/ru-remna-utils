@@ -81,7 +81,9 @@ def status(
 @app.command()
 def install(
     service: str = typer.Argument(..., help="Имя сервиса"),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Показать план без выполнения"),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Показать план без выполнения"
+    ),
 ) -> None:
     """Установить сервис."""
     check_root()
@@ -102,7 +104,9 @@ def install(
 @app.command()
 def apply(
     service: str = typer.Argument(..., help="Имя сервиса"),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Показать план без выполнения"),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Показать план без выполнения"
+    ),
 ) -> None:
     """Применить настройки сервиса."""
     check_root()
@@ -127,7 +131,9 @@ def apply(
 
 @app.command()
 def setup_all(
-    dry_run: bool = typer.Option(False, "--dry-run", help="Показать план без выполнения"),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Показать план без выполнения"
+    ),
 ) -> None:
     """Установить и настроить все сервисы для VPN-сервера."""
     check_root()
@@ -166,9 +172,14 @@ def info() -> None:
     table.add_column("Описание", style="white")
 
     categories = {
-        "swap": "system", "sysctl": "system", "ssh": "system", "autoupdate": "system",
-        "ufw": "security", "fail2ban": "security",
-        "docker": "tools", "uv": "tools",
+        "swap": "system",
+        "sysctl": "system",
+        "ssh": "system",
+        "autoupdate": "system",
+        "ufw": "security",
+        "fail2ban": "security",
+        "docker": "tools",
+        "uv": "tools",
         "traffic": "monitoring",
     }
 

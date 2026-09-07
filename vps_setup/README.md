@@ -146,9 +146,9 @@ sudo vps-setup apply uv
 class Config:
     log_level: str = "INFO"
     vpn_ports: list[int] = [443, 51820, 80, 22]  # VPN-порты
-    ssh_port: int = 22                            # SSH-порт
-    fail2ban_bantime: int = 3600                  # Время бана (секунды)
-    fail2ban_maxretry: int = 5                    # Макс. попыток
+    ssh_port: int = 22  # SSH-порт
+    fail2ban_bantime: int = 3600  # Время бана (секунды)
+    fail2ban_maxretry: int = 5  # Макс. попыток
 ```
 
 ## Примеры использования
