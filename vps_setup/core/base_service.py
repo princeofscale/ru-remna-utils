@@ -24,7 +24,9 @@ class BaseService(ABC):
     ) -> subprocess.CompletedProcess:
         if not self.is_root():
             raise PermissionError("Требуются права root (sudo)")
-        return self.executor.run(cmd, description=description, check=check, capture=capture)
+        return self.executor.run(
+            cmd, description=description, check=check, capture=capture
+        )
 
     def _read(self, cmd: list[str], check: bool = False) -> subprocess.CompletedProcess:
         return subprocess.run(cmd, capture_output=True, text=True, check=check)
