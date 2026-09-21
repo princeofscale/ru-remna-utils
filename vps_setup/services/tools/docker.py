@@ -26,7 +26,11 @@ class DockerService(BaseService):
                 description="создать /etc/apt/keyrings",
             )
             self.run_command(
-                ["sh", "-c", "curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg"],
+                [
+                    "sh",
+                    "-c",
+                    "curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg",
+                ],
                 description="добавить GPG ключ Docker",
             )
             self.run_command(
@@ -34,11 +38,23 @@ class DockerService(BaseService):
                 description="chmod docker.gpg",
             )
             self.run_command(
-                ["sh", "-c", 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list'],
+                [
+                    "sh",
+                    "-c",
+                    'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list',
+                ],
                 description="добавить репозиторий Docker",
             )
             pm.update()
-            pm.install(["docker-ce", "docker-ce-cli", "containerd.io", "docker-buildx-plugin", "docker-compose-plugin"])
+            pm.install(
+                [
+                    "docker-ce",
+                    "docker-ce-cli",
+                    "containerd.io",
+                    "docker-buildx-plugin",
+                    "docker-compose-plugin",
+                ]
+            )
             return "✅ Docker установлен"
         except Exception as e:
             return f"❌ Ошибка установки Docker: {e}"
