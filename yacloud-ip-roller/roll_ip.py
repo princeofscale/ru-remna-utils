@@ -176,7 +176,10 @@ def roll_instance(
                 time.sleep(2)
 
         if ip is None:
-            tprint(f"{tag} [{attempt}/{attempts}] не удаётся получить IP, повтор...", flush=True)
+            tprint(
+                f"{tag} [{attempt}/{attempts}] не удаётся получить IP, повтор...",
+                flush=True,
+            )
             time.sleep(5)
             continue
 
@@ -274,7 +277,9 @@ def main():
     print(f"Итого: {len(networks)} записей\n", flush=True)
 
     if args.prefix:
-        print(f"Фильтр: только IP начинающиеся с: {', '.join(args.prefix)}\n", flush=True)
+        print(
+            f"Фильтр: только IP начинающиеся с: {', '.join(args.prefix)}\n", flush=True
+        )
 
     instance_ids = args.instance_id
     results: dict = {}
