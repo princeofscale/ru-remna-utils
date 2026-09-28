@@ -14,7 +14,9 @@ class PackageManager:
             text=True,
             check=False,
         )
-        return result.returncode == 0 and "Status: install ok installed" in result.stdout
+        return (
+            result.returncode == 0 and "Status: install ok installed" in result.stdout
+        )
 
     def install(self, packages: list[str]) -> None:
         missing = [p for p in packages if not self.is_installed(p)]
