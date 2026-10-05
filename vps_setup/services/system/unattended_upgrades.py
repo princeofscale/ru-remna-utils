@@ -32,7 +32,10 @@ class UnattendedUpgradesService(BaseService):
 
     def status(self) -> str:
         pkg_check = self._read(["dpkg-query", "--status", "unattended-upgrades"])
-        if pkg_check.returncode != 0 or "Status: install ok installed" not in pkg_check.stdout:
+        if (
+            pkg_check.returncode != 0
+            or "Status: install ok installed" not in pkg_check.stdout
+        ):
             return "❌ unattended-upgrades не установлен"
         if _AUTO_UPGRADES.exists():
             return "✅ Автообновления активны"
