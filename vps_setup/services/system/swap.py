@@ -27,7 +27,9 @@ class SwapService(BaseService):
         return "ℹ️ Swap создаётся через apply"
 
     def is_configured(self) -> bool:
-        return _SWAP_FILE.exists() and "/swapfile" in (_FSTAB.read_text() if _FSTAB.exists() else "")
+        return _SWAP_FILE.exists() and "/swapfile" in (
+            _FSTAB.read_text() if _FSTAB.exists() else ""
+        )
 
     def apply(self) -> str:
         if self.is_configured() and not self.executor.dry_run:
