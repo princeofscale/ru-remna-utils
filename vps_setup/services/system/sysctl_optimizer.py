@@ -48,7 +48,9 @@ class SysctlOptimizerService(BaseService):
         if self.is_configured() and not self.executor.dry_run:
             return "✅ Sysctl уже оптимизирован"
         try:
-            conf_content = "\n".join(f"{k} = {v}" for k, v in self._params.items()) + "\n"
+            conf_content = (
+                "\n".join(f"{k} = {v}" for k, v in self._params.items()) + "\n"
+            )
             self.executor.write_file(
                 str(_SYSCTL_CONF),
                 conf_content,
