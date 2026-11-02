@@ -19,7 +19,12 @@ class Fail2BanService(BaseService):
         if result.returncode == 0 and "active" in result.stdout:
             jails = self._read(["fail2ban-client", "status"])
             jail_line = next(
-                (line.strip() for line in jails.stdout.splitlines() if "Jail list:" in line), ""
+                (
+                    line.strip()
+                    for line in jails.stdout.splitlines()
+                    if "Jail list:" in line
+                ),
+                "",
             )
             return f"✅ Fail2Ban активен ({jail_line or 'нет jail'})"
         return "⚠️ Fail2Ban установлен, но не запущен"
